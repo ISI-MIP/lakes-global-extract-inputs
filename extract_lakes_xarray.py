@@ -55,7 +55,10 @@ for period in get_periods(path):
 
     # get file names for current period
     tas_file = [file for file in fnmatch.filter(os.listdir(path), '*_tas_*') if period in file][0]
+    tasmin_file = [file for file in fnmatch.filter(os.listdir(path), '*_tasmin_*') if period in file][0]
+    tasmax_file = [file for file in fnmatch.filter(os.listdir(path), '*_tasmax_*') if period in file][0]
     hurs_file = [file for file in fnmatch.filter(os.listdir(path), '*_hurs_*') if period in file][0]
+    huss_file = [file for file in fnmatch.filter(os.listdir(path), '*_huss_*') if period in file][0]
     pr_file = [file for file in fnmatch.filter(os.listdir(path), '*_pr_*') if period in file][0]
     rsds_file = [file for file in fnmatch.filter(os.listdir(path), '*_rsds_*') if period in file][0]
     rlds_file = [file for file in fnmatch.filter(os.listdir(path), '*_rlds_*') if period in file][0]
@@ -64,7 +67,10 @@ for period in get_periods(path):
 
     # open datasets
     tas_ds = xr.load_dataset(path + '/' + tas_file)
+    tasmin_ds = xr.load_dataset(path + '/' + tasmin_file)
+    tasmax_ds = xr.load_dataset(path + '/' + tasmax_file)
     hurs_ds = xr.load_dataset(path + '/' + hurs_file)
+    huss_ds = xr.load_dataset(path + '/' + huss_file)
     pr_ds = xr.load_dataset(path + '/' + pr_file)
     rsds_ds = xr.load_dataset(path + '/' + rsds_file)
     rlds_ds = xr.load_dataset(path + '/' + rlds_file)
@@ -81,8 +87,14 @@ for period in get_periods(path):
         # read actual data from NetCDF
         print('   read tas ...')
         tas_lake = tas_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
+        print('   read tasmin ...')
+        tasmin_lake = tasmin_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
+        print('   read tasmax ...')
+        tasmax_lake = tasmax_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read hurs ...')
         hurs_lake = hurs_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
+        print('   read huss ...')
+        huss_lake = huss_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read pr ...')
         pr_lake = pr_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read rsds ...')
@@ -98,7 +110,10 @@ for period in get_periods(path):
         print('   write data ...')
 
         lake_data = tas_lake.to_dataframe()
+        lake_data['tasmin'] = tasmin_lake['tasmin']
+        lake_data['tasmax'] = tasmax_lake['tasmax']
         lake_data['hurs'] = hurs_lake['hurs']
+        lake_data['huss'] = huss_lake['huss']
         lake_data['pr'] = pr_lake['pr']
         lake_data['rsds'] = rsds_lake['rsds']
         lake_data['rlds'] = rlds_lake['rlds']
@@ -109,3 +124,14 @@ for period in get_periods(path):
             lake_data.to_csv(outpath / outfile)
         else:
             lake_data.to_csv(outpath / outfile, mode='a', header=False)
+
+    tas_ds.close()
+    tasmin_ds.close()
+    tasmax_ds.close()
+    hurs_ds.close()
+    huss_ds.close()
+    pr_ds.close()
+    rsds_ds.close()
+    rlds_ds.close()
+    ps_ds.close()
+    sfcwind_ds.close()
