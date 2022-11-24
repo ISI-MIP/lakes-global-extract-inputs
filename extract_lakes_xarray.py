@@ -130,7 +130,7 @@ for period in get_periods(path):
         lake_data['huss'] = huss_lake['huss']
         lake_data['pr'] = pr_lake['pr']
         if process_prsn:
-            lake_data['prsn'] = pr_lake['prsn']
+            lake_data['prsn'] = prsn_lake['prsn']
         lake_data['rsds'] = rsds_lake['rsds']
         lake_data['rlds'] = rlds_lake['rlds']
         lake_data['ps'] = ps_lake['ps']
