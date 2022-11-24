@@ -46,6 +46,10 @@ def get_periods(path):
     periods = [file.split('daily_')[1].split('.nc')[0] for file in files]
     return periods
 
+if (args.model not in ['20CRv3', '20CRv3-ERA5', '20CRv3-W5E5']) and (args.datatype != 'counterclim'):
+    process_prsn = True
+else:
+    process_prsn = False
 
 first_year = get_periods(path)[0].split(sep='_')[0]
 last_year = get_periods(path)[-1].split(sep='_')[1]
@@ -60,6 +64,8 @@ for period in get_periods(path):
     hurs_file = [file for file in fnmatch.filter(os.listdir(path), '*_hurs_*') if period in file][0]
     huss_file = [file for file in fnmatch.filter(os.listdir(path), '*_huss_*') if period in file][0]
     pr_file = [file for file in fnmatch.filter(os.listdir(path), '*_pr_*') if period in file][0]
+    if process_prsn:
+        prsn_file = [file for file in fnmatch.filter(os.listdir(path), '*_prsn_*') if period in file][0]
     rsds_file = [file for file in fnmatch.filter(os.listdir(path), '*_rsds_*') if period in file][0]
     rlds_file = [file for file in fnmatch.filter(os.listdir(path), '*_rlds_*') if period in file][0]
     ps_file = [file for file in fnmatch.filter(os.listdir(path), '*_ps_*') if period in file][0]
@@ -72,6 +78,8 @@ for period in get_periods(path):
     hurs_ds = xr.load_dataset(path + '/' + hurs_file)
     huss_ds = xr.load_dataset(path + '/' + huss_file)
     pr_ds = xr.load_dataset(path + '/' + pr_file)
+    if process_prsn:
+        prsn_ds = xr.load_dataset(path + '/' + prsn_file)
     rsds_ds = xr.load_dataset(path + '/' + rsds_file)
     rlds_ds = xr.load_dataset(path + '/' + rlds_file)
     ps_ds = xr.load_dataset(path + '/' + ps_file)
@@ -97,6 +105,9 @@ for period in get_periods(path):
         huss_lake = huss_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read pr ...')
         pr_lake = pr_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
+        if process_prsn:
+            print('   read prsn ...')
+            prsn_lake = prsn_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read rsds ...')
         rsds_lake = rsds_ds.sel(lat=lake[2], lon=lake[3], method='nearest')
         print('   read rlds ...')
@@ -115,6 +126,8 @@ for period in get_periods(path):
         lake_data['hurs'] = hurs_lake['hurs']
         lake_data['huss'] = huss_lake['huss']
         lake_data['pr'] = pr_lake['pr']
+        if process_prsn:
+            lake_data['prsn'] = pr_lake['prsn']
         lake_data['rsds'] = rsds_lake['rsds']
         lake_data['rlds'] = rlds_lake['rlds']
         lake_data['ps'] = ps_lake['ps']
@@ -131,6 +144,8 @@ for period in get_periods(path):
     hurs_ds.close()
     huss_ds.close()
     pr_ds.close()
+    if process_prsn:
+        prsn_ds.close()
     rsds_ds.close()
     rlds_ds.close()
     ps_ds.close()
